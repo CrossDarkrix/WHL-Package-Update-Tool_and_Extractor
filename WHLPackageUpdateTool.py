@@ -38,7 +38,7 @@ def Update():
 		if Package_Name == '':
 			pass
 		else:
-			print(pip(['install', '--upgrade','--no-deps', Package_Name]))
+			print(pip(['install', '--upgrade','--no-deps', Package_Name]), flush=True)
 		cd(currentdir)
 	elst = ti() - start
 	print("\nElapsed Time:{0}".format(round(elst)) + "[sec]")
@@ -68,7 +68,7 @@ def Download():
 		if Package_Name == '':
 			pass
 		else:
-			print(pip(['download','--no-deps','--no-cache-dir',Package_Name]))
+			print(pip(['download','--no-deps','--no-cache-dir',Package_Name]), flush=True)
 	elst = ti() - start
 	print("\nElapsed Time:{0}".format(round(elst)) + "[sec]")
 	print("All Wheel Packages Downloaded.")
