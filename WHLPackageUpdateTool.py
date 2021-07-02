@@ -1,10 +1,12 @@
-﻿# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
 """
 Name : whl Package Update Tool(whl packages only)
 Author: DarkRix
-Version: 3.0
+Version: 3.5
 """
-import json, sys, subprocess, argparse
+
+import json, sys, subprocess, argparse, concurrent.futures
 from time import time as ti
 from os import chdir as cd
 from os import getcwd as pwd
@@ -12,54 +14,47 @@ from os import getcwd as pwd
 currentdir = pwd()
 
 def pip_json():
+	global json_data
 	_process = subprocess.Popen([sys.executable, '-m', 'pip', 'list', '--outdated', '--format=json'], stdout=subprocess.PIPE)
 	outputs, _ = _process.communicate()
 	json_data = json.loads(outputs.decode('utf-8'))
-	return json_data
 
 def pip(command):
 	_process = subprocess.Popen([sys.executable, '-m', 'pip'] + command, stdout=subprocess.PIPE)
 	outputs, _ = _process.communicate()
 	return outputs.decode('utf-8')
 
-def Update():
+def List():
 	start = ti()
 	print("Getting Update Package List....")
-	jdata = pip_json()
-	for i in range(int(len(jdata))):
-		cd(currentdir)
-		Package_Name = jdata[i]['name']
-		File_Type = jdata[i]['latest_filetype']
-
-		if File_Type == 'sdist':
-			Package_Name = """"""
-		else:
-			pass
-		if Package_Name == '':
-			pass
-		else:
-			print(pip(['install', '--upgrade','--no-deps', Package_Name]), flush=True)
-		cd(currentdir)
-	elst = ti() - start
-	print("\nElapsed Time:{0}".format(round(elst)) + "[sec]")
-	print("All Wheel Packages Updated.")
+	with concurrent.futures.ThreadPoolExecutor() as EXC:
+		EXC.submit(pip_json())
+		print("\n########## Package List ##########\n")
+		for i in range(int(len(json_data))):
+			Package_Name = json_data[i]['name']
+			File_Type = json_data[i]['latest_filetype']
+			print("  ◆ " + Package_Name + ' (Install Type: ' + File_Type + ')')
+		print("\n##################################\n")
+		elst = ti() - start
+		print("\nElapsed Time:{0}".format(round(elst)) + "[sec]")
 
 def Download():
 	start = ti()
 	print("Getting Update Package List....")
-	jdata = pip_json()
+	with concurrent.futures.ThreadPoolExecutor() as EXC:
+		EXC.submit(pip_json())
 	print("\n########## Package List ##########\n")
-	for i in range(int(len(jdata))):
+	for i in range(int(len(json_data))):
 		cd(currentdir)
-		Package_Name = jdata[i]['name']
-		File_Type = jdata[i]['latest_filetype']
+		Package_Name = json_data[i]['name']
+		File_Type = json_data[i]['latest_filetype']
 		print("  ◆ " + Package_Name + ' (Install Type: ' + File_Type + ')')
 	print("\n##################################\n")
 
-	for i in range(int(len(jdata))):
+	for i in range(int(len(json_data))):
 		cd(currentdir)
-		Package_Name = jdata[i]['name']
-		File_Type = jdata[i]['latest_filetype']
+		Package_Name = json_data[i]['name']
+		File_Type = json_data[i]['latest_filetype']
 
 		if File_Type == 'sdist':
 			Package_Name = """"""
@@ -68,23 +63,35 @@ def Download():
 		if Package_Name == '':
 			pass
 		else:
-			print(pip(['download','--no-deps','--no-cache-dir',Package_Name]), flush=True)
+			with concurrent.futures.ThreadPoolExecutor() as EXC2:
+				print(concurrent.futures.Future.result(EXC2.submit(pip, ['download','--no-deps','--no-cache-dir',Package_Name])))
 	elst = ti() - start
 	print("\nElapsed Time:{0}".format(round(elst)) + "[sec]")
 	print("All Wheel Packages Downloaded.")
 
-def List():
+def Update():
 	start = ti()
 	print("Getting Update Package List....")
-	jdata = pip_json()
-	print("\n########## Package List ##########\n")
-	for i in range(int(len(jdata))):
-		Package_Name = jdata[i]['name']
-		File_Type = jdata[i]['latest_filetype']
-		print("  ◆ " + Package_Name + ' (Install Type: ' + File_Type + ')')
-	print("\n##################################\n")
+	with concurrent.futures.ThreadPoolExecutor() as EXC:
+		EXC.submit(pip_json())
+	for i in range(int(len(json_data))):
+		cd(currentdir)
+		Package_Name = json_data[i]['name']
+		File_Type = json_data[i]['latest_filetype']
+
+		if File_Type == 'sdist':
+			Package_Name = """"""
+		else:
+			pass
+		if Package_Name == '':
+			pass
+		else:
+			with concurrent.futures.ThreadPoolExecutor() as EXC3:
+				print(concurrent.futures.Future.result(EXC3.submit(pip, ['install', '--upgrade','--no-deps', Package_Name])))
+		cd(currentdir)
 	elst = ti() - start
 	print("\nElapsed Time:{0}".format(round(elst)) + "[sec]")
+	print("All Wheel Packages Updated.")
 
 def main(argument):
 	Ap = argparse.ArgumentParser()
@@ -103,3 +110,4 @@ def main(argument):
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
+
