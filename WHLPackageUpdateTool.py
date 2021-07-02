@@ -98,7 +98,7 @@ def main(argument):
 	Ap.add_argument("-l", "--list", action="store_true", help="only listup update lists")
 	Ap.add_argument("-d", "--download", action="store_true", help="only download update packages")
 	Ap.add_argument("-u", "--update", action="store_true", help="only update packages")
-	Ap.add_argument("-v", "--version", action="version", version="3.0", help="this script version")
+	Ap.add_argument("-v", "--version", action="version", version="3.5", help="this script version")
 	Arguments = Ap.parse_args()
 
 	if Arguments.list:
