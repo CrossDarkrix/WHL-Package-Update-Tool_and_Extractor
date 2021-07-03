@@ -28,14 +28,14 @@ def List():
 	print("Getting Update Package List....")
 	with concurrent.futures.ThreadPoolExecutor() as EXC:
 		EXC.submit(pip_json())
-		print("\n########## Package List ##########\n")
-		for i in range(int(len(json_data))):
-			Package_Name = json_data[i]['name']
-			File_Type = json_data[i]['latest_filetype']
-			print("  ◆ " + Package_Name + ' (Install Type: ' + File_Type + ')')
-		print("\n##################################\n")
-		elst = ti() - start
-		print("\nElapsed Time:{0}".format(round(elst)) + "[sec]")
+	print("\n########## Package List ##########\n")
+	for i in range(int(len(json_data))):
+		Package_Name = json_data[i]['name']
+		File_Type = json_data[i]['latest_filetype']
+		print("  ◆ " + Package_Name + ' (Install Type: ' + File_Type + ')')
+	print("\n##################################\n")
+	elst = ti() - start
+	print("\nElapsed Time:{0}".format(round(elst)) + "[sec]")
 
 def Download():
 	start = ti()
