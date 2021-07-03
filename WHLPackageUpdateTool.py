@@ -3,13 +3,12 @@
 """
 Name : whl Package Update Tool(whl packages only)
 Author: DarkRix
-Version: 3.5
+Version: 3.6
 """
 
 import json, sys, subprocess, argparse, concurrent.futures
 from time import time as ti
-from os import chdir as cd
-from os import getcwd as pwd
+from os import chdir as cd, getcwd as pwd
 
 currentdir = pwd()
 
@@ -95,18 +94,28 @@ def Update():
 
 def main(argument):
 	Ap = argparse.ArgumentParser()
-	Ap.add_argument("-l", "--list", action="store_true", help="only listup update lists")
-	Ap.add_argument("-d", "--download", action="store_true", help="only download update packages")
-	Ap.add_argument("-u", "--update", action="store_true", help="only update packages")
-	Ap.add_argument("-v", "--version", action="version", version="3.5", help="this script version")
+
+	Ap.add_argument("-l", "--List", action="store_true", help="only listup update lists")
+	Ap.add_argument("-d", "--Download", action="store_true", help="only download update packages")
+	Ap.add_argument("-u", "--Update", action="store_true", help="only update packages")
+	Ap.add_argument("-v", "--version", action="version", version="3.6", help="this script version")
+	Ap.add_argument("list", nargs='?', help="only listup update lists")
+	Ap.add_argument("download", nargs='?', help="only download update packages")
+	Ap.add_argument("update", nargs='?', help="only update packages")
 	Arguments = Ap.parse_args()
 
-	if Arguments.list:
+	if Arguments.List:
 		List()
-	elif Arguments.download:
+	elif Arguments.Download:
 		Download()
-	elif Arguments.update:
+	elif Arguments.Update:
 		Update()
+	elif Arguments.list == 'download' and Arguments.download == None:
+		Download()
+	elif Arguments.list == 'update' and Arguments.update == None:
+		Update()
+	elif Arguments.list == 'list':
+		List()
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
