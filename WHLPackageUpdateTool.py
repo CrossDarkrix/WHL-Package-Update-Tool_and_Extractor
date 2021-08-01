@@ -7,10 +7,11 @@ Author: DarkRix
 Version: 3.6
 """
 
-import json, sys, subprocess, argparse, concurrent.futures
+import json, sys, subprocess, argparse
 from time import time as ti
 from os import chdir as cd, getcwd as pwd
 from threading import Thread
+
 currentdir = pwd()
 
 def pip_json():
