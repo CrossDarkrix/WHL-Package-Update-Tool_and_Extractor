@@ -21,10 +21,12 @@ def pip_json():
 	json_data = json.loads(outputs.decode('utf-8'))
 
 def pip(command):
-	_process = subprocess.Popen([sys.executable, '-m', 'pip'] + command, stdout=subprocess.PIPE)
-	outputs, _ = _process.communicate()
-	print(outputs.decode('utf-8'))
-
+	subprocess.call([sys.executable, '-m', 'pip'] + command)
+	if command[1] == '--upgrade':
+		if not sys.stderr == '':
+			print('Info: Trying Force Install...')
+			subprocess.call([sys.executable, '-m', 'pip', 'install', '--upgrade', '--ignore-installed', '--no-deps', command[3]])
+		
 class JSONThread(Thread):
 	def __init__(self):
 		Thread.__init__(self)
