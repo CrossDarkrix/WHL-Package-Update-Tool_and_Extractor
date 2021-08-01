@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding:utf-8 -*-
 
 """
 Name : whl Package Update Tool(whl packages only)
@@ -9,7 +10,7 @@ Version: 3.6
 import json, sys, subprocess, argparse, concurrent.futures
 from time import time as ti
 from os import chdir as cd, getcwd as pwd
-
+from threading import Thread
 currentdir = pwd()
 
 def pip_json():
@@ -21,18 +22,33 @@ def pip_json():
 def pip(command):
 	_process = subprocess.Popen([sys.executable, '-m', 'pip'] + command, stdout=subprocess.PIPE)
 	outputs, _ = _process.communicate()
-	return outputs.decode('utf-8')
+	print(outputs.decode('utf-8'))
 
+class JSONThread(Thread):
+	def __init__(self):
+		Thread.__init__(self)
+	def run(self):
+		pip_json()
+
+class PIPThread(Thread):
+	def __init__(self, cmd):
+		Thread.__init__(self)
+		self.cmd = cmd
+	def run(self):
+		pip(self.cmd)
+        
 def List():
 	start = ti()
 	print("Getting Update Package List....")
-	with concurrent.futures.ThreadPoolExecutor() as EXC:
-		EXC.submit(pip_json())
+	GetJson = JSONThread()
+	GetJson.start()
+	GetJson.join()
 	print("\n########## Package List ##########\n")
 	for i in range(int(len(json_data))):
 		Package_Name = json_data[i]['name']
 		File_Type = json_data[i]['latest_filetype']
-		print("  ◆ " + Package_Name + ' (Install Type: ' + File_Type + ')')
+		if File_Type == 'wheel':
+			print("  ◆ " + Package_Name + ' (Install Type: ' + File_Type + ')')
 	print("\n##################################\n")
 	elst = ti() - start
 	print("\nElapsed Time:{0}".format(round(elst)) + "[sec]")
@@ -40,14 +56,16 @@ def List():
 def Download():
 	start = ti()
 	print("Getting Update Package List....")
-	with concurrent.futures.ThreadPoolExecutor() as EXC:
-		EXC.submit(pip_json())
+	GetJson = JSONThread()
+	GetJson.start()
+	GetJson.join()
 	print("\n########## Package List ##########\n")
 	for i in range(int(len(json_data))):
 		cd(currentdir)
 		Package_Name = json_data[i]['name']
 		File_Type = json_data[i]['latest_filetype']
-		print("  ◆ " + Package_Name + ' (Install Type: ' + File_Type + ')')
+		if File_Type == 'wheel':
+			print("  ◆ " + Package_Name + ' (Install Type: ' + File_Type + ')')
 	print("\n##################################\n")
 
 	for i in range(int(len(json_data))):
@@ -62,8 +80,9 @@ def Download():
 		if Package_Name == '':
 			pass
 		else:
-			with concurrent.futures.ThreadPoolExecutor() as EXC2:
-				print(concurrent.futures.Future.result(EXC2.submit(pip, ['download','--no-deps','--no-cache-dir',Package_Name])))
+			_pip = PIPThread(['download','--no-deps','--no-cache-dir',Package_Name])
+			_pip.start()
+			_pip.join()
 	elst = ti() - start
 	print("\nElapsed Time:{0}".format(round(elst)) + "[sec]")
 	print("All Wheel Packages Downloaded.")
@@ -71,8 +90,17 @@ def Download():
 def Update():
 	start = ti()
 	print("Getting Update Package List....")
-	with concurrent.futures.ThreadPoolExecutor() as EXC:
-		EXC.submit(pip_json())
+	GetJson = JSONThread()
+	GetJson.start()
+	GetJson.join()
+	print("\n########## Package List ##########\n")
+	for i in range(int(len(json_data))):
+		cd(currentdir)
+		Package_Name = json_data[i]['name']
+		File_Type = json_data[i]['latest_filetype']
+		if File_Type == 'wheel':
+			print("  ◆ " + Package_Name + ' (Install Type: ' + File_Type + ')')
+	print("\n##################################\n")
 	for i in range(int(len(json_data))):
 		cd(currentdir)
 		Package_Name = json_data[i]['name']
@@ -85,8 +113,9 @@ def Update():
 		if Package_Name == '':
 			pass
 		else:
-			with concurrent.futures.ThreadPoolExecutor() as EXC3:
-				print(concurrent.futures.Future.result(EXC3.submit(pip, ['install', '--upgrade','--no-deps', Package_Name])))
+			_pip = PIPThread(['install', '--upgrade','--no-deps', Package_Name])
+			_pip.start()
+			_pip.join()
 		cd(currentdir)
 	elst = ti() - start
 	print("\nElapsed Time:{0}".format(round(elst)) + "[sec]")
