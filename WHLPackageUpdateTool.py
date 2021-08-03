@@ -11,6 +11,9 @@ import json, sys, subprocess, argparse
 from time import time as ti
 from os import chdir as cd, getcwd as pwd
 from threading import Thread
+from colorama import Fore, init as Starting
+
+Starting()
 
 currentdir = pwd()
 
@@ -21,9 +24,12 @@ def pip_json():
 	json_data = json.loads(outputs.decode('utf-8'))
 
 def pip(command):
-	subprocess.call([sys.executable, '-m', 'pip'] + command)
+	pips = subprocess.Popen([sys.executable, '-m', 'pip'] + command, stderr=subprocess.PIPE)
+	_, err = pips.communicate()
+	stderr = err.decode('utf-8')
+	print(Fore.RED + stderr + Fore.RESET)
 	if command[1] == '--upgrade':
-		if not sys.stderr == '':
+		if 'ERROR:' in stderr:
 			print('Info: Trying Force Install...')
 			subprocess.call([sys.executable, '-m', 'pip', 'install', '--upgrade', '--ignore-installed', '--no-deps', command[3]])
 		
