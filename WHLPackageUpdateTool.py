@@ -14,7 +14,6 @@ from threading import Thread
 from colorama import Fore, init as Starting
 
 Starting()
-
 currentdir = pwd()
 
 def pip_json():
@@ -27,12 +26,15 @@ def pip(command):
 	pips = subprocess.Popen([sys.executable, '-m', 'pip'] + command, stderr=subprocess.PIPE)
 	_, err = pips.communicate()
 	stderr = err.decode('utf-8')
-	print(Fore.RED + stderr + Fore.RESET)
+	if 'ERROR:' in stderr:
+		print(Fore.RED + stderr + Fore.RESET)
+	elif 'WARNING:' in stderr:
+		print(Fore.YELLOW + stderr + Fore.RESET)
 	if command[1] == '--upgrade':
 		if 'ERROR:' in stderr:
 			print('Info: Trying Force Install...')
 			subprocess.call([sys.executable, '-m', 'pip', 'install', '--upgrade', '--ignore-installed', '--no-deps', command[3]])
-		
+
 class JSONThread(Thread):
 	def __init__(self):
 		Thread.__init__(self)
