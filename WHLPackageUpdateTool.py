@@ -28,8 +28,6 @@ def pip(command):
 	stderr = err.decode('utf-8')
 	if 'ERROR:' in stderr:
 		print(Fore.RED + stderr + Fore.RESET)
-	elif 'WARNING:' in stderr:
-		print(Fore.YELLOW + stderr + Fore.RESET)
 	if command[1] == '--upgrade':
 		if 'ERROR:' in stderr:
 			print('Info: Trying Force Install...')
